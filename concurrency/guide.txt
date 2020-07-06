@@ -1,0 +1,1 @@
+g++ example_3.cpp -pthread
