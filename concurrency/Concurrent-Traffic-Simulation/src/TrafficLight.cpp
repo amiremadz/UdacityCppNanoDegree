@@ -23,7 +23,7 @@ void MessageQueue<T>::send(T &&msg)
 
 /* Implementation of class "TrafficLight" */
 
-/* 
+ 
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
@@ -36,14 +36,15 @@ void TrafficLight::waitForGreen()
     // Once it receives TrafficLightPhase::green, the method returns.
 }
 
-TrafficLightPhase TrafficLight::getCurrentPhase()
+TrafficLight::TrafficLightPhase TrafficLight::getCurrentPhase() const
 {
     return _currentPhase;
 }
 
 void TrafficLight::simulate()
 {
-    // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class. 
+    // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class.
+
 }
 
 // virtual function which is executed in a thread
@@ -53,6 +54,30 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
+    std::unique_lock<std::mutex> lock(_mtx);
+    std::cout << "Traffic light: " << (_currentPhase == TrafficLightPhase::red ? "red" : "green") << "thread id = " 
+        << std::this_thread::get_id() << std::endl;
+    lock.unlock();
+
+    std::chrono::time_point<std::chrono::system_clock> last_update = std::chrono::system_clock::now();
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
+        long time_since_last_update = std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::system_clock::now() - last_update).count();
+
+        if (time_since_last_update >= 4 && time_since_last_update <= 6) {
+            switch (_currentPhase ){
+                case TrafficLightPhase::red:
+                    _currentPhase = TrafficLightPhase::green;
+                    break;
+                case TrafficLightPhase::green:
+                    _currentPhase = TrafficLightPhase::red;
+                   break;
+            }
+            last_update = std::chrono::system_clock::now();
+        }
+    }
 }
 
-*/
+
