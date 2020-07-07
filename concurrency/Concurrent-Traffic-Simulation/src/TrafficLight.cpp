@@ -12,14 +12,17 @@ T MessageQueue<T>::receive()
     // to wait for and receive new messages and pull them from the queue using move semantics. 
     // The received object should then be returned by the receive function. 
 }
+*/
 
 template <typename T>
 void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+    std::lock_guard<std::mutex> lock(_mtx);
+    _queue.push_back(std::move(msg));
+    _condition.notify_one();
 }
-*/
 
 /* Implementation of class "TrafficLight" */
 
@@ -44,7 +47,7 @@ TrafficLight::TrafficLightPhase TrafficLight::getCurrentPhase() const
 void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class.
-    traffic.emplace_back(std::thread(&cycleThroughPhases, this));
+    threads.emplace_back(std::thread(&TrafficLight::cycleThroughPhases, this));
 }
 
 // virtual function which is executed in a thread
@@ -63,10 +66,15 @@ void TrafficLight::cycleThroughPhases()
     while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
         
-        long time_since_last_update = std::chrono::duration_cast<std::chrono::seconds>(
+        long time_since_last_update = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::system_clock::now() - last_update).count();
 
-        if (time_since_last_update >= 4 && time_since_last_update <= 6) {
+        std::random_device rd;
+        std::mt19937 eng(rd());
+        std::uniform_int_distribution<> distr(4000, 6000);
+        long cycleDuration = distr(eng);
+
+        if (time_since_last_update >= cycleDuration) {
             switch (_currentPhase ){
                 case TrafficLightPhase::red:
                     _currentPhase = TrafficLightPhase::green;
@@ -75,6 +83,7 @@ void TrafficLight::cycleThroughPhases()
                     _currentPhase = TrafficLightPhase::red;
                    break;
             }
+            _message_queue.send(std::move(_currentPhase));
             last_update = std::chrono::system_clock::now();
         }
     }

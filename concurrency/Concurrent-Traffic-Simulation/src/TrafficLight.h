@@ -15,7 +15,7 @@ class Vehicle;
 // Also, the class should define an std::dequeue called _queue, which stores objects of type TrafficLightPhase. 
 // Also, there should be an std::condition_variable as well as an std::mutex as private members. 
 
-template <class T>
+template <typename T>
 class MessageQueue
 {
 public:
@@ -24,8 +24,8 @@ public:
 
 private:
     std::mutex _mtx;
-    std::condition_variable _cond;
-    std::dequeue _queue;    
+    std::condition_variable _condition;
+    std::deque<T> _queue;    
 };
 
 // FP.1 : Define a class „TrafficLight“ which is a child class of TrafficObject. 
@@ -62,6 +62,7 @@ private:
     TrafficLightPhase _currentPhase;
     std::condition_variable _condition;
     std::mutex _mutex;
+    MessageQueue<TrafficLightPhase> _message_queue;
 };
 
 #endif
