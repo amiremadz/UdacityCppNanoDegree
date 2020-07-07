@@ -19,8 +19,8 @@ template <typename T>
 class MessageQueue
 {
 public:
-    void send(T &&phase);
     T receive();
+    void send(T &&phase);
 
 private:
     std::mutex _mtx;
