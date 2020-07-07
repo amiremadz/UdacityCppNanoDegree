@@ -3,7 +3,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 #include <io2d.h>
+
 #include "route_model.h"
 #include "render.h"
 #include "route_planner.h"
@@ -60,7 +62,45 @@ int main(int argc, const char **argv)
     RouteModel model{osm_data};
 
     // Create RoutePlanner object and perform A* search.
-    RoutePlanner route_planner{model, 10, 10, 90, 90};
+    float start_x, start_y, end_x, end_y;
+
+    std::cout << "Enter a start_x from 0 to 100: ";
+    std::cin >> start_x;
+    while (!(std::cin) || start_x < 0 || start_x > 100) {
+        std::cout << "Invalid entry. Enter a start_x from 0 to 100: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> start_x;
+    }
+    
+    std::cout << "Enter a start_y from 0 to 100: ";
+    std::cin >> start_y;
+    while (!(std::cin) || start_y < 0 || start_y > 100) {
+        std::cout << "Invalid entry. Enter a start_y from 0 to 100: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> start_y;
+    }
+
+    std::cout << "Enter a end_x from 0 to 100: ";
+    std::cin >> end_x;
+    while (!(std::cin) || end_x < 0 || end_x > 100) {
+        std::cout << "Invalid entry. Enter a end_x from 0 to 100: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> end_x;
+    }
+
+    std::cout << "Enter a end_y from 0 to 100: ";
+    std::cin >> end_y;
+    while (!(std::cin) || end_y < 0 || end_y > 100) {
+        std::cout << "Invalid entry. Enter a end_y from 0 to 100: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cin >> end_y;
+    }
+
+    RoutePlanner route_planner{model, start_x, start_y, end_x, end_y};
     route_planner.AStarSearch();
 
     std::cout << "Distance: " << route_planner.GetDistance() << " meters. \n";
