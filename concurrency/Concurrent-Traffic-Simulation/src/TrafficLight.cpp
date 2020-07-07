@@ -65,7 +65,7 @@ void TrafficLight::cycleThroughPhases()
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
     std::unique_lock<std::mutex> lock(_mtx);
-    std::cout << "Traffic light: " << (_currentPhase == TrafficLightPhase::red ? "red" : "green") << "thread id = " 
+    std::cout << "Traffic light: " << (_currentPhase == TrafficLightPhase::red ? "red: " : "green: ") << "thread id = " 
         << std::this_thread::get_id() << std::endl;
     lock.unlock();
 
