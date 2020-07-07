@@ -15,8 +15,8 @@ string Format::ElapsedTime(long seconds) {
   long rest = seconds % 3600;
   long minute = rest / 60;
   long second = rest % 60;
-  formatted_time << std::setfill('0') << std::setw(2) << hour 
-                 << std::setfill('0') << std::setw(2) << minute
+  formatted_time << std::setfill('0') << std::setw(2) << hour << ':' 
+                 << std::setfill('0') << std::setw(2) << minute << ':'
                  << std::setfill('0') << std::setw(2) << second;
   return formatted_time.str();
 }
