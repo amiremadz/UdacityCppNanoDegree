@@ -56,7 +56,9 @@ bool compare(const RouteModel::Node *node_1, const RouteModel::Node *node_2) {
 }
 
 RouteModel::Node *RoutePlanner::NextNode() {
-  std::sort(open_list.begin(), open_list.end(), compare);
+  std::sort(open_list.begin(), open_list.end(), [](const RouteModel::Node *n1, RouteModel::Node *n2) {
+          return n1->g_value + n1->h_value > n2->g_value + n2->h_value;
+          });
   RouteModel::Node *next = open_list.back();
   open_list.pop_back();
   return next;
@@ -76,7 +78,6 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
-      
     RouteModel::Node *node = current_node;
     while (node) {
       path_found.push_back(*node);
@@ -109,7 +110,7 @@ void RoutePlanner::AStarSearch() {
   
     while (!open_list.empty()) {
       current_node = NextNode();//current_node == end_node
-      if (current_node->distance(*end_node) == 0) {
+      if (current_node == end_node) {
         m_Model.path = ConstructFinalPath(current_node);
         return;
       }
