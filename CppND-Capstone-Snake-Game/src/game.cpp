@@ -8,6 +8,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       random_w_(0, static_cast<int>(grid_width) - 1),
       random_h_(0, static_cast<int>(grid_height) - 1) {
   PlaceFood();
+  poisons_.resize(kNumOfPoisons);
+  PlacePoisonousFoods();
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -25,7 +27,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake_);
     Update();
-    renderer.Render(snake_, food_);
+    renderer.Render(snake_, food_, poisons_);
 
     frame_end = SDL_GetTicks();
 
@@ -54,6 +56,34 @@ int Game::GetScore() const { return score_; }
 
 int Game::GetSize() const { return snake_.size; }
 
+void Game::Update() {
+  if (!snake_.alive) return;
+
+  snake_.Update();
+
+  int new_x = static_cast<int>(snake_.head_x);
+  int new_y = static_cast<int>(snake_.head_y);
+
+  // Check if snake ate any poison.
+  for (int i = 0; i < kNumOfPoisons; ++i) {
+      if (new_x == poisons_[i].x && new_y == poisons_[i].y) {
+        snake_.alive = false;
+        return;  
+      }
+  }
+  
+  // Check if there's food over here.
+  if (food_.x == new_x && food_.y == new_y) {
+    score_++;
+    PlaceFood();
+    PlacePoisonousFoods();
+
+    // Grow snake and increase speed.
+    snake_.GrowBody();
+    snake_.speed += 0.01;
+  }
+}
+
 void Game::PlaceFood() {
   int x, y;
   while (true) {
@@ -70,21 +100,21 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::Update() {
-  if (!snake_.alive) return;
+void Game::PlacePoisonousFoods() {
+    poisons_.clear();
+    int counter = 0;
+    while (counter < kNumOfPoisons) {
+        int x = random_w_(engine_);
+        int y = random_h_(engine_);
 
-  snake_.Update();
+        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) ) {
+            poisons_.emplace_back(SDL_Point{x, y});
+            ++counter;
+        }
+    }
+}
 
-  int new_x = static_cast<int>(snake_.head_x);
-  int new_y = static_cast<int>(snake_.head_y);
-
-  // Check if there's food over here
-  if (food_.x == new_x && food_.y == new_y) {
-    score_++;
-    PlaceFood();
-    // Grow snake and increase speed.
-    snake_.GrowBody();
-    snake_.speed += 0.02;
-  }
+bool Game::FoodCell(int x, int y) const {
+    return x == food_.x && y == food_.y;
 }
 

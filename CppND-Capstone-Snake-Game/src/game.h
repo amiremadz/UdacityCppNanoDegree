@@ -10,6 +10,7 @@
 
 class Game {
  public:
+  static constexpr int kNumOfPoisons = 4;
   Game(std::size_t grid_width, std::size_t grid_height);
 
   void Run(Controller const &controller, Renderer &renderer,
@@ -18,11 +19,14 @@ class Game {
   int GetSize() const;
 
  private:
-  void PlaceFood();
   void Update(); 
-  
+  void PlaceFood();
+  void PlacePoisonousFoods();
+  bool FoodCell(int x, int y) const;
+
   Snake snake_;
   SDL_Point food_;
+  std::vector<SDL_Point> poisons_;
 
   std::random_device dev_;
   std::mt19937 engine_;
@@ -30,7 +34,6 @@ class Game {
   std::uniform_int_distribution<int> random_h_;
 
   int score_{0};
-
 };
 
 #endif
