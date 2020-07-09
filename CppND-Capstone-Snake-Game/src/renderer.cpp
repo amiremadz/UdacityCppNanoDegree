@@ -73,10 +73,6 @@ void Renderer::UpdateWindowTitle(int score, int fps, int snake_size) {
   std::ostringstream title; 
   title << "Snake Score: " << score << "  Snake size: " << snake_size << "  FPS: " << fps;
   SDL_SetWindowTitle(sdl_window, title.str().c_str());
-  
-  //std::string title{"Snake Score: " + std::to_string(score) + " Snake size: " + std::to_string(snake_size)  
-  //    + " FPS: " + std::to_string(fps)};
-  //SDL_SetWindowTitle(sdl_window, title.c_str());
 }
 
 Renderer::~Renderer() {
