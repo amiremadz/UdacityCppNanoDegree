@@ -1,6 +1,8 @@
 #include "renderer.h"
+
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 Renderer::Renderer(std::size_t screen_width, std::size_t screen_height,
                    std::size_t grid_width, std::size_t grid_height)
@@ -77,9 +79,10 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food, const std::vect
   SDL_RenderPresent(sdl_renderer_);
 }
 
-void Renderer::UpdateWindowTitle(int score, int fps, int snake_size) {
+void Renderer::UpdateWindowTitle(int score, int fps, int snake_size, long elapsed_time) {
   std::ostringstream title; 
-  title << "Snake Score: " << score << "  Snake size: " << snake_size << "  FPS: " << fps;
+  title << "Score: " << score << "  Size: " << snake_size << "  Elapsed time: " 
+      << std::setw(2) << static_cast<float>(elapsed_time) / 1000 << " s" << "  FPS: " << fps;
   SDL_SetWindowTitle(sdl_window_, title.str().c_str());
 }
 

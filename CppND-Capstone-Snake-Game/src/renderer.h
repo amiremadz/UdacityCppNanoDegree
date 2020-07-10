@@ -12,7 +12,7 @@ class Renderer {
            std::size_t grid_width, std::size_t grid_height);
 
   void Render(Snake const &snake, SDL_Point const &food, const std::vector<SDL_Point> &poisons);
-  void UpdateWindowTitle(int score, int fps, int snake_size);
+  void UpdateWindowTitle(int score, int fps, int snake_size, long elapsed_time);
 
   ~Renderer();
 

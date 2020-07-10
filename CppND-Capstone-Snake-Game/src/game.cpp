@@ -1,6 +1,8 @@
 #include "game.h"
-#include <iostream>
 #include "SDL.h"
+
+#include <iostream>
+#include <chrono>
 
 void audio_callback(void *user_data, uint8_t *stream, int stream_length) {
   AudioData *audio = static_cast<AudioData *>(user_data);
@@ -37,7 +39,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   bool running = true;
 
   SDL_PauseAudioDevice(sdl_audio_, 0);
- 
+
+  auto start  = std::chrono::system_clock::now(); 
   while (running) {
     frame_start = SDL_GetTicks();
 
@@ -59,7 +62,12 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score_, frame_count, snake_.size);
+      auto now = std::chrono::system_clock::now();
+      long elapsed_time;
+      if (snake_.alive) {
+          elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();  
+      }
+      renderer.UpdateWindowTitle(score_, frame_count, snake_.size, elapsed_time);
       frame_count = 0;
       title_timestamp = frame_end;
     }
