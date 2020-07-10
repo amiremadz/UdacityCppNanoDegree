@@ -20,7 +20,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake_(grid_width, grid_height),
       engine_(dev_()),
       random_w_(0, static_cast<int>(grid_width) - 1),
-      random_h_(0, static_cast<int>(grid_height) - 1) {
+      random_h_(0, static_cast<int>(grid_height) - 1),
+      bonus_({-1, -1}) {
   PlaceFood();
   
   poisons_.resize(kNumOfPoisons);
@@ -40,7 +41,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
   SDL_PauseAudioDevice(sdl_audio_, 0);
 
-  auto start  = std::chrono::system_clock::now(); 
+  auto start = std::chrono::system_clock::now(); 
   while (running) {
     frame_start = SDL_GetTicks();
 
@@ -51,10 +52,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake_);
     Update();
-    renderer.Render(snake_, food_, poisons_);
+    renderer.Render(snake_, food_, poisons_, bonus_);
 
     frame_end = SDL_GetTicks();
-
+    
     // Keep track of how long each loop through the input/update/render cycle
     // takes.
     frame_count++;
@@ -63,11 +64,11 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
       auto now = std::chrono::system_clock::now();
-      long elapsed_time;
       if (snake_.alive) {
-          elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();  
+          elapsed_time_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();  
       }
-      renderer.UpdateWindowTitle(score_, frame_count, snake_.size, elapsed_time);
+
+      renderer.UpdateWindowTitle(score_, frame_count, snake_.size, elapsed_time_);
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -105,7 +106,20 @@ void Game::Update() {
         return;  
       }
   }
-  
+
+  long diff = elapsed_time_ - last_bonus_time_;
+  if (diff > kBonusTimePeriod_ms && bonus_.x == -1) {
+    PlaceBonus();
+    last_bonus_time_ = elapsed_time_;
+  }
+
+  // Check if snake ate bonus.
+  if (bonus_.x == new_x && bonus_.y == new_y) {
+      snake_.speed -= 0.005;        
+      bonus_.x = -1;
+      bonus_.y = -1;
+  }
+
   // Check if there's food over here.
   if (food_.x == new_x && food_.y == new_y) {
     score_++;
@@ -141,15 +155,35 @@ void Game::PlacePoisonousFoods() {
         int x = random_w_(engine_);
         int y = random_h_(engine_);
 
-        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) ) {
+        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) && !PoisonCell(x, y)) {
             poisons_.emplace_back(SDL_Point{x, y});
             ++counter;
         }
     }
 }
 
+void Game::PlaceBonus() {
+    int x, y;
+    while (true) {
+        x = random_w_(engine_);
+        y = random_h_(engine_);
+        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) && !PoisonCell(x, y)) {
+            bonus_.x = x;
+            bonus_.y = y;
+            return;
+        }
+    }
+}
+
 bool Game::FoodCell(int x, int y) const {
     return x == food_.x && y == food_.y;
+}
+
+bool Game::PoisonCell(int x, int y) const {
+    for (auto &poison : poisons_) {
+        if (x == poison.x && y == poison.y) return true;
+    }
+    return false;
 }
 
 bool Game::AudioSetup() {
@@ -173,3 +207,5 @@ bool Game::AudioSetup() {
 
   return true;
 }
+
+

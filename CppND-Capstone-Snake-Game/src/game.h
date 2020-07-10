@@ -15,7 +15,6 @@ struct AudioData {
 
 class Game {
  public:
-  static constexpr int kNumOfPoisons = 4;
   Game(std::size_t grid_width, std::size_t grid_height);
 
   void Run(Controller const &controller, Renderer &renderer,
@@ -26,22 +25,30 @@ class Game {
   ~Game();
 
  private:
+  static constexpr int kNumOfPoisons = 4;
+  static constexpr long kBonusTimePeriod_ms = 20000;
+  
   void Update(); 
   void PlaceFood();
   void PlacePoisonousFoods();
+  void PlaceBonus();
   bool FoodCell(int x, int y) const;
+  bool PoisonCell(int x, int y) const;
   bool AudioSetup();
 
   Snake snake_;
   SDL_Point food_;
   std::vector<SDL_Point> poisons_;
-
+  SDL_Point bonus_;
+  
   std::random_device dev_;
   std::mt19937 engine_;
   std::uniform_int_distribution<int> random_w_;
   std::uniform_int_distribution<int> random_h_;
 
-  int score_{0};
+  int score_ = 0;
+  long elapsed_time_ = 0;
+  long last_bonus_time_ = 0;
 
   std::string wav_path_ = "../example.wav";
   uint8_t* wav_start_;
