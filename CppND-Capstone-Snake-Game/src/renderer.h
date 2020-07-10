@@ -1,10 +1,10 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <vector>
-
 #include "SDL.h"
 #include "snake.h"
+
+#include <vector>
 
 class Renderer {
  public:
@@ -24,6 +24,8 @@ class Renderer {
   const std::size_t screen_height_;
   const std::size_t grid_width_;
   const std::size_t grid_height_;
+
+  void RenderRect(const SDL_Point &object, SDL_Rect *block) const;
 };
 
 #endif

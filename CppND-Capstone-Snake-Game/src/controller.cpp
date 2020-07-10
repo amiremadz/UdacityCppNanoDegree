@@ -1,7 +1,8 @@
 #include "controller.h"
-#include <iostream>
 #include "SDL.h"
 #include "snake.h"
+
+#include <iostream>
 
 void Controller::HandleInput(bool &running, Snake &snake) const {
   SDL_Event e;
@@ -39,4 +40,3 @@ void Controller::ChangeDirection(Snake &snake, Snake::Direction input,
   if (snake.direction != opposite || snake.size == 1) snake.direction = input;
   return;
 }
-

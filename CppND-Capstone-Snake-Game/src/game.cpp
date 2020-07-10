@@ -1,5 +1,4 @@
 #include "game.h"
-#include "SDL.h"
 
 #include <iostream>
 #include <chrono>
@@ -142,7 +141,7 @@ void Game::Update() {
 
   // Check if there's food over here.
   if (food_.x == new_x && food_.y == new_y) {
-    score_++;
+    ++score_;
     PlaceFood();
     PlacePoisonousFoods();
 

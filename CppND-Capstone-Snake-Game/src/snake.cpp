@@ -1,4 +1,5 @@
 #include "snake.h"
+
 #include <cmath>
 #include <iostream>
 
