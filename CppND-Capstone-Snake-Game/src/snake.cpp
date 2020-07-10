@@ -20,7 +20,7 @@ void Snake::Update() {
 void Snake::GrowBody() { growing_ = true; }
 
 // Inefficient method to check if cell is occupied by snake.
-bool Snake::SnakeCell(int x, int y) {
+bool Snake::SnakeCell(int x, int y) const {
   if (x == static_cast<int>(head_x) && y == static_cast<int>(head_y)) {
     return true;
   }

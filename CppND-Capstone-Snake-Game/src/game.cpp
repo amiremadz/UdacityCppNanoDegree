@@ -21,7 +21,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
       engine_(dev_()),
       random_w_(0, static_cast<int>(grid_width) - 1),
       random_h_(0, static_cast<int>(grid_height) - 1),
-      bonus_({-1, -1}) {
+      bonus_({-1, -1}), 
+      jem_({-1, -1})  {
   PlaceFood();
   
   poisons_.resize(kNumOfPoisons);
@@ -139,13 +140,17 @@ void Game::PlaceFood() {
     y = random_h_(engine_);
     // Check that the location is not occupied by a snake item before placing
     // food.
-    if (!snake_.SnakeCell(x, y)) {
+    if (CellAvailable(x, y)) {
       food_.x = x;
       food_.y = y;
       std::cout << "Placed food at x = " << x << " and y = " << y << std::endl; 
       return;
     }
   }
+}
+
+bool Game::CellAvailable(int x, int y) const {
+    return !snake_.SnakeCell(x, y) && !FoodCell(x, y) && !PoisonCell(x, y);
 }
 
 void Game::PlacePoisonousFoods() {
@@ -155,7 +160,7 @@ void Game::PlacePoisonousFoods() {
         int x = random_w_(engine_);
         int y = random_h_(engine_);
 
-        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) && !PoisonCell(x, y)) {
+        if (CellAvailable(x, y)) {
             poisons_.emplace_back(SDL_Point{x, y});
             ++counter;
         }
@@ -167,7 +172,7 @@ void Game::PlaceBonus() {
     while (true) {
         x = random_w_(engine_);
         y = random_h_(engine_);
-        if (!snake_.SnakeCell(x, y) && !FoodCell(x, y) && !PoisonCell(x, y)) {
+        if (CellAvailable(x, y)) {
             bonus_.x = x;
             bonus_.y = y;
             return;

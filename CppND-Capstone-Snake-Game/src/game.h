@@ -29,6 +29,7 @@ class Game {
   static constexpr long kBonusTimePeriod_ms = 20000;
   
   void Update(); 
+  bool CellAvailable(int x, int y) const;
   void PlaceFood();
   void PlacePoisonousFoods();
   void PlaceBonus();
@@ -40,7 +41,8 @@ class Game {
   SDL_Point food_;
   std::vector<SDL_Point> poisons_;
   SDL_Point bonus_;
-  
+  SDL_Point jem_;
+
   std::random_device dev_;
   std::mt19937 engine_;
   std::uniform_int_distribution<int> random_w_;
