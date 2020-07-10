@@ -8,6 +8,11 @@
 #include "renderer.h"
 #include "snake.h"
 
+struct AudioData {
+  uint8_t *pos;
+  uint32_t length; 
+};
+
 class Game {
  public:
   static constexpr int kNumOfPoisons = 4;
@@ -18,11 +23,14 @@ class Game {
   int GetScore() const;
   int GetSize() const;
 
+  ~Game();
+
  private:
   void Update(); 
   void PlaceFood();
   void PlacePoisonousFoods();
   bool FoodCell(int x, int y) const;
+  bool AudioSetup();
 
   Snake snake_;
   SDL_Point food_;
@@ -34,6 +42,13 @@ class Game {
   std::uniform_int_distribution<int> random_h_;
 
   int score_{0};
+
+  std::string wav_path_ = "../example.wav";
+  uint8_t* wav_start_;
+  uint32_t wav_length_;
+  SDL_AudioDeviceID sdl_audio_;
+  SDL_AudioSpec wav_spec_;
+  AudioData audio_;
 };
 
 #endif

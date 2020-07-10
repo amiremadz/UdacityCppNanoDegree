@@ -2,14 +2,29 @@
 #include <iostream>
 #include "SDL.h"
 
+void audio_callback(void *user_data, uint8_t *stream, int stream_length) {
+  AudioData *audio = static_cast<AudioData *>(user_data);
+
+  if (audio->length == 0) return;
+
+  uint32_t length = static_cast<uint32_t>(stream_length);
+  length = (length > audio->length) ? audio->length : length;
+  SDL_memcpy(stream, audio->pos, length);
+  audio->pos += length;
+  audio->length -= length;
+}
+
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake_(grid_width, grid_height),
       engine_(dev_()),
       random_w_(0, static_cast<int>(grid_width) - 1),
       random_h_(0, static_cast<int>(grid_height) - 1) {
   PlaceFood();
+  
   poisons_.resize(kNumOfPoisons);
   PlacePoisonousFoods();
+
+  AudioSetup();
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -21,8 +36,14 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   bool running = true;
 
+  SDL_PauseAudioDevice(sdl_audio_, 0);
+ 
   while (running) {
     frame_start = SDL_GetTicks();
+
+    if (audio_.length == 0) {
+        AudioSetup();
+    }
 
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake_);
@@ -55,6 +76,11 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 int Game::GetScore() const { return score_; }
 
 int Game::GetSize() const { return snake_.size; }
+
+Game::~Game() {
+    SDL_CloseAudioDevice(sdl_audio_);
+    SDL_FreeWAV(wav_start_);
+}
 
 void Game::Update() {
   if (!snake_.alive) return;
@@ -118,3 +144,24 @@ bool Game::FoodCell(int x, int y) const {
     return x == food_.x && y == food_.y;
 }
 
+bool Game::AudioSetup() {
+  if (SDL_LoadWAV(wav_path_.c_str(), &wav_spec_, &wav_start_, &wav_length_) == nullptr) {
+      std::cerr << "Error: file could not be loaded as an audio file." << std::endl;
+      return false;
+  }
+
+  audio_.pos = wav_start_;
+  audio_.length = wav_length_;
+
+  wav_spec_.callback = audio_callback;
+  wav_spec_.userdata = &audio_;
+
+  sdl_audio_ = SDL_OpenAudioDevice(nullptr, 0, &wav_spec_, nullptr, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  
+  if (sdl_audio_ == 0) {
+      std::cerr << "Error: " << SDL_GetError() << std::endl;
+      return false;
+  }
+
+  return true;
+}
