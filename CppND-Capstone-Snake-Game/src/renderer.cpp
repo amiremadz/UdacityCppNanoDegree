@@ -34,7 +34,7 @@ Renderer::Renderer(std::size_t screen_width, std::size_t screen_height,
   }
 }
 
-void Renderer::Render(Snake const &snake, SDL_Point const &food, const std::vector<SDL_Point> &poisons, const SDL_Point &bonus) {
+void Renderer::Render(Snake const &snake, SDL_Point const &food, const std::vector<SDL_Point> &poisons, const SDL_Point &bonus, const SDL_Point &gem) {
   SDL_Rect block;
   block.w = screen_width_ / grid_width_;
   block.h = screen_height_ / grid_height_;
@@ -58,11 +58,16 @@ void Renderer::Render(Snake const &snake, SDL_Point const &food, const std::vect
   }
 
   // Render bonus
-  SDL_SetRenderDrawColor(sdl_renderer_, 0x80, 0x00, 0x80, 0xFF);
+  SDL_SetRenderDrawColor(sdl_renderer_, 0xFF, 0x69, 0xB4, 0xFF);
   block.x = bonus.x * block.w;
   block.y = bonus.y * block.h;
   SDL_RenderFillRect(sdl_renderer_, &block);
 
+  // Render gem
+  SDL_SetRenderDrawColor(sdl_renderer_, 0x80, 0x00, 0x80, 0xFF);
+  block.x = gem.x * block.w;
+  block.y = gem.y * block.h;
+  SDL_RenderFillRect(sdl_renderer_, &block);
 
   // Render snake's body
   SDL_SetRenderDrawColor(sdl_renderer_, 0xFF, 0xFF, 0xFF, 0xFF);
